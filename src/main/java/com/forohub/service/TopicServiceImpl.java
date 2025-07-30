@@ -5,17 +5,18 @@ import com.forohub.dto.TopicResponse;
 import com.forohub.entity.Course;
 import com.forohub.entity.Topic;
 import com.forohub.entity.User;
+import com.forohub.exception.TopicNotFoundException;
+import com.forohub.exception.DuplicateTopicException;
 import com.forohub.repository.CourseRepository;
 import com.forohub.repository.TopicRepository;
 import com.forohub.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,14 +30,14 @@ public class TopicServiceImpl implements TopicService {
     @Transactional
     public TopicResponse createTopic(TopicRequest req) {
         //evitar temas duplicados
-        if (topicRepository.existsByTituloAndMensaje(req.getTitulo(),req.getMensaje()) {
-            throw new DuplicateTopicException("Ya existe un tópico con este título y mensaje")
+        if (topicRepository.existsByTituloAndMensaje(req.getTitulo(), req.getMensaje())) {
+            throw new DuplicateTopicException("Ya existe un tópico con este título y mensaje");
         }
 
         User author = userRepository.findById(req.getAuthorId())
-                .orElseThrow(() -> new TopicNotFoundException("Autor no encontrado");
+                .orElseThrow(() -> new TopicNotFoundException("Autor no encontrado"));
         Course course = courseRepository.findById(req.getCourseId())
-                .orElseThrow(() -> new TopicNotFoundException("Curso no encontrado");
+                .orElseThrow(() -> new TopicNotFoundException("Curso no encontrado"));
 
         Topic topic = new Topic();
         topic.setTitulo(req.getTitulo());
@@ -48,6 +49,23 @@ public class TopicServiceImpl implements TopicService {
         Topic saved = topicRepository.save(topic);
 
         return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TopicResponse> listAllTopics() {
+        return topicRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TopicResponse getTopicById(Long id) {
+        Topic topic = topicRepository.findById(id)
+                .orElseThrow(() -> new TopicNotFoundException("Tópico no existe: " + id));
+        return mapToResponse(topic);
     }
 
     @Override
@@ -70,13 +88,15 @@ public class TopicServiceImpl implements TopicService {
         }
         topicRepository.deleteById(id);
     }
-
-    @Override
-    @Transactional
-    public void deleteTopic(Long id) {
-        if (!topicRepository.existsById(id)) {
-            throw new TopicNotFoundException("Tópico no existe: " + id);
-        }
-        topicRepository.deleteById(id);
+    private TopicResponse mapToResponse(Topic topic) {
+        return new TopicResponse(
+                topic.getId(),
+                topic.getTitulo(),
+                topic.getMensaje(),
+                topic.getFechaCreacion(),
+                topic.getStatus(),
+                topic.getAuthor().getNombre(),
+                topic.getCourse().getNombre()
+        );
     }
 }
