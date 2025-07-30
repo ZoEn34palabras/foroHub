@@ -10,6 +10,8 @@ import com.forohub.exception.DuplicateTopicException;
 import com.forohub.repository.CourseRepository;
 import com.forohub.repository.TopicRepository;
 import com.forohub.repository.UserRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -59,6 +61,14 @@ public class TopicServiceImpl implements TopicService {
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TopicResponse> listTopics(Pageable pageable) {
+        return topicRepository.findAll(pageable)
+                .map(this::mapToResponse);
+    }
+
 
     @Override
     @Transactional(readOnly = true)

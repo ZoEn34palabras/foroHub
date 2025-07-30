@@ -5,6 +5,10 @@ import com.forohub.dto.TopicResponse;
 import com.forohub.service.TopicService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +37,14 @@ public class TopicController {
     @GetMapping("/{id}")
     public TopicResponse getById(@PathVariable Long id) {
         return topicService.getTopicById(id);
+    }
+
+    @GetMapping
+    public Page<TopicResponse> listTopics(
+            @PageableDefault(size = 10, sort = "fechaCreacion", direction = Direction.DESC)
+            Pageable pageable
+    ) {
+        return topicService.listTopics(pageable);
     }
 
     @PutMapping("/{id}")
