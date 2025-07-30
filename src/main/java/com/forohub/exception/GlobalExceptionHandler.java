@@ -1,11 +1,9 @@
 package com.forohub.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
-import org.springframework.web.ErrorResponse;
+import org.springframework.http.ResponseEntity;
+import com.forohub.exception.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,15 +17,24 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TopicNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(TopicNotFoundException ex) {
-        ErrorResponse err = new ErrorResponse(Instant.now(), HttpStatus.NOT_FOUND.value(),
-                "Not Found", ex.getMessage());
+        ErrorResponse err = new ErrorResponse(
+                           Instant.now(),
+                           HttpStatus.NOT_FOUND.value(),
+                           "Not Found",
+                           ex.getMessage()
+                           );
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
     }
 
     @ExceptionHandler(DuplicateTopicException.class)
     public ResponseEntity<ErrorResponse> handleConflict(DuplicateTopicException ex) {
-        ErrorResponse err = new ErrorResponse(Instant.now(), HttpStatus.CONFLICT.value(),
-                "Conflict", ex.getMessage());
+        ErrorResponse err = new ErrorResponse(
+            Instant.now(),
+            HttpStatus.CONFLICT.value(),
+            "Conflict",
+                  ex.getMessage()
+                  );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(err);
     }
 
