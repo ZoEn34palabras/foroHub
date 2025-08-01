@@ -1,4 +1,3 @@
-// src/main/java/com/forohub/exception/ErrorResponse.java
 package com.forohub.exception;
 
 import lombok.AllArgsConstructor;
