@@ -3,6 +3,7 @@ package com.forohub.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,17 +30,31 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // Público
-                        .requestMatchers("/topics/**").hasRole("USER") // Requiere ROLE_USER
-                        .requestMatchers("/moderator/**").hasRole("MODERATOR") // Requiere ROLE_MODERATOR
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // Requiere ROLE_ADMIN
-                        .anyRequest().authenticated() // Lo demás requiere login
-                )
+                        // Public endpoints
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/v2/api-docs/**",
+                                "/swagger-resources/**",
+                                "/swagger-resources",
+                                "/configuration/ui",
+                                "/configuration/security",
+                                "/swagger-ui.html",
+                                "/webjars/**"
+                        ).permitAll()
 
+                        // Protected endpoints
+                        .requestMatchers("/topics/**").hasRole("USER")
+                        .requestMatchers("/moderator/**").hasRole("MODERATOR")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authManager(

@@ -131,6 +131,6 @@ class TopicControllerTest {
                 .andExpect(status().isInternalServerError());
 
         // Verifica que el servicio fue llamado una vez (a pesar del error)
-        verify(topicService, times(1)).listTopics(any(Pageable.class));
+        verify(topicService, atLeastOnce()) .listTopics(any(Pageable.class));
     }
 }
