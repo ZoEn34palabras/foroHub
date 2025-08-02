@@ -29,9 +29,13 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/auth/**").permitAll() // Público
+                        .requestMatchers("/topics/**").hasRole("USER") // Requiere ROLE_USER
+                        .requestMatchers("/moderator/**").hasRole("MODERATOR") // Requiere ROLE_MODERATOR
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // Requiere ROLE_ADMIN
+                        .anyRequest().authenticated() // Lo demás requiere login
                 )
+
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
