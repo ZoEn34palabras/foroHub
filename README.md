@@ -1,269 +1,242 @@
-ForoHub
+# ForoHub
 
-ForoHub is a Spring Boot-based RESTful API for managing forum topics and user authentication. It supports CRUD operations on topics, JWT-based security, and includes comprehensive tests and API documentation via OpenAPI.
+ForoHub is a Spring Boot–based RESTful API for managing forum topics and user authentication.  
+It supports CRUD operations on topics, JWT-based security, comprehensive tests, and API documentation via OpenAPI (Swagger).
 
-Table of Contents
+---
 
-Prerequisites
+## Table of Contents
 
-Project Setup
+1. [Prerequisites](#prerequisites)  
+2. [Project Setup](#project-setup)  
+3. [Configuration](#configuration)  
+4. [Database Migrations](#database-migrations)  
+5. [Running the Application](#running-the-application)  
+6. [API Documentation](#api-documentation)  
+7. [Authentication](#authentication)  
+8. [Endpoints](#endpoints)  
+   - [Authentication Endpoints](#authentication-endpoints)  
+   - [Topic Endpoints](#topic-endpoints)  
+9. [Testing](#testing)  
+10. [Packaging](#packaging)  
+11. [Contributing](#contributing)  
+12. [License](#license)  
 
-Configuration
+---
 
-Database Migrations
+## Prerequisites
 
-Running the Application
+Make sure you have these installed:
 
-API Documentation
+- **Java 17+**  
+  ```bash
+  java -version
+  ```
+- **Maven 3.8+**  
+  ```bash
+  mvn -v
+  ```
+- **MySQL 8+**    
+  You’ll need a user with permission to create databases.
+- **Git**  
+  ```bash
+  git --version
+  ```
+- **IDE** (IntelliJ, Eclipse, VS Code, etc.)
 
-Authentication
+---
 
-Endpoints
+## Project Setup
 
-Authentication Endpoints
+1. **Clone the repo**  
+   ```bash
+   git clone https://github.com/<your-username>/forohub.git
+   cd forohub
+   ```
 
-Topic Endpoints
+2. **Create the database**  
+   ```sql
+   CREATE DATABASE forohub_db;
+   ```
 
-Testing
+3. **Flyway migrations**  
+   On startup, Flyway will automatically apply any SQL scripts in  
+   `src/main/resources/db/migration`
 
-Packaging
+---
 
-Contributing
+## Configuration
 
-License
+Edit `src/main/resources/application.properties` (or `.yml`) with your settings:
 
-Prerequisites
-
-Before you begin, ensure you have the following installed on your machine:
-
-Java Development Kit (JDK) 17 or higher
-
-Verify with:
-
-java -version
-
-Maven 3.8+
-
-Verify with:
-
-mvn -v
-
-MySQL Server 8+
-
-Ensure you can connect with a user that has permissions to create databases.
-
-Git
-
-Verify with:
-
-git --version
-
-IDE of your choice
-
-IntelliJ IDEA, Eclipse, VS Code, etc.
-
-Project Setup
-
-Clone the repository
-
-git clone https://github.com/<your-username>/forohub.git
-cd forohub
-
-Create the database
-Log in to MySQL and run:
-
-CREATE DATABASE forohub_db;
-
-Flyway Migrations
-The project uses Flyway for database versioning. By default, Flyway runs automatically on startup and applies scripts in src/main/resources/db/migration.
-
-Configuration
-
-Application settings are in src/main/resources/application.properties (or application.yml). Update the following properties:
-
+```properties
 # Database
 spring.datasource.url=jdbc:mysql://localhost:3306/forohub_db?useSSL=false&serverTimezone=UTC
 spring.datasource.username=YOUR_DB_USERNAME
 spring.datasource.password=YOUR_DB_PASSWORD
 
-# Hibernate (optional if using Flyway)
+# Hibernate (optional with Flyway)
 spring.jpa.hibernate.ddl-auto=validate
 
-# JWT Security\ nsecurity.jwt.secret=YourJWTSecretKeyHere
-security.jwt.expiration-ms=3600000  # 1 hour in milliseconds
+# JWT Security
+security.jwt.secret=YourJWTSecretKeyHere
+security.jwt.expiration-ms=3600000
 
 # OpenAPI (Swagger)
 springdoc.api-docs.path=/v3/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
+```
 
-Tip: Never commit your real secrets to version control. Use environment variables or a vault for production.
+> **Tip:** Don’t commit real secrets—use environment variables or a vault for production.
 
-Database Migrations
+---
 
-Location: src/main/resources/db/migration
+## Database Migrations
 
-Scripts: Start with V1__create_topics_table.sql, and add new migrations as you evolve the schema.
+- **Location:** `src/main/resources/db/migration`  
+- **Naming:** `V1__create_topics_table.sql`, `V2__…`, etc.  
+- **Run:** Automatically on application startup.
 
-Running: Migrations run automatically on application startup.
+---
 
-Running the Application
+## Running the Application
 
-Build with Maven
+1. **Build**  
+   ```bash
+   mvn clean install
+   ```
 
-mvn clean install
+2. **Run**  
+   ```bash
+   mvn spring-boot:run
+   ```
+3. **Access**  
+   Open `http://localhost:8080`
 
-Run
+---
 
-mvn spring-boot:run
+## API Documentation
 
-Access
-
-The API listens on http://localhost:8080
-
-API Documentation
-
-Once the application is running, Swagger UI is available at:
-
+Once running, explore Swagger UI at:  
+```
 http://localhost:8080/swagger-ui.html
+```
 
-Use this interface to explore endpoints, request/response schemas, and try them out interactively.
+---
 
-Authentication
+## Authentication
 
-This API uses JWT for stateless authentication.
+This API uses JWT for stateless auth.
 
-Register
-
-Endpoint: POST /auth/register
-
-Payload:
-
+### Register
+```
+POST /auth/register
+```
+**Payload**
+```json
 {
   "nombre": "Your Name",
   "email": "user@example.com",
   "password": "strongPassword"
 }
+```
+**Response**  
+`201 Created` with a success message.
 
-Response: 201 Created with message.
-
-Login
-
-Endpoint: POST /auth/login
-
-Payload:
-
+### Login
+```
+POST /auth/login
+```
+**Payload**
+```json
 {
   "email": "user@example.com",
   "password": "strongPassword"
 }
+```
+**Response**  
+`200 OK`  
+```json
+{ "token": "<JWT_TOKEN>" }
+```
 
-Response: 200 OK with JSON { "token": "<JWT_TOKEN>" }
-
-Using the Token
-
-For secured endpoints, add the header:
-
+**Usage**  
+For secured endpoints, include header:  
+```
 Authorization: Bearer <JWT_TOKEN>
+```
 
-Endpoints
+---
 
-Authentication Endpoints
+## Endpoints
 
-Method
+### Authentication Endpoints
 
-Path
+| Method | Path             | Description                |
+| ------ | ---------------- | -------------------------- |
+| POST   | `/auth/register` | Register a new user        |
+| POST   | `/auth/login`    | Authenticate and get a JWT |
 
-Description
+### Topic Endpoints
 
-POST
+| Method | Path             | Description                              |
+| ------ | ---------------- | ---------------------------------------- |
+| POST   | `/topics`        | Create a new topic (ROLE_USER)           |
+| GET    | `/topics`        | List all topics (paginated) (ROLE_USER)  |
+| GET    | `/topics/{id}`   | Get topic by ID (ROLE_USER)              |
+| PUT    | `/topics/{id}`   | Update topic (ROLE_USER)                 |
+| DELETE | `/topics/{id}`   | Delete topic (ROLE_USER)                 |
 
-/auth/register
+> **Note:**  
+> - `/moderator/**` endpoints require `ROLE_MODERATOR`  
+> - `/admin/**` endpoints require `ROLE_ADMIN`
 
-Register a new user
+---
 
-POST
+## Testing
 
-/auth/login
-
-Authenticate and get JWT
-
-Topic Endpoints
-
-Method
-
-Path
-
-Description
-
-POST
-
-/topics
-
-Create a new topic (ROLE_USER)
-
-GET
-
-/topics
-
-List all topics (paginated) (ROLE_USER)
-
-GET
-
-/topics/{id}
-
-Get topic by ID (ROLE_USER)
-
-PUT
-
-/topics/{id}
-
-Update topic by ID (ROLE_USER)
-
-DELETE
-
-/topics/{id}
-
-Delete topic by ID (ROLE_USER)
-
-Note: Endpoints under /moderator/** require ROLE_MODERATOR, and /admin/** require ROLE_ADMIN.
-
-Testing
-
-The project includes unit and integration tests.
-
-Run all tests
-
+Run all tests with:
+```bash
 mvn test
+```
+Reports: `target/surefire-reports`
 
-Test reports
+---
 
-Generated under target/surefire-reports.
+## Packaging
 
-Packaging
-
-Package the application as a standalone JAR:
-
+Build a standalone JAR:
+```bash
 mvn clean package
-
+```
 Run the JAR:
-
+```bash
 java -jar target/forohub-1.0.0.jar
+```
 
-Contributing
+---
 
-Fork the repository.
+## Contributing
 
-Create a feature branch: git checkout -b feature/your-feature.
+1. Fork the repo  
+2. Create a branch:  
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+3. Make changes and commit:  
+   ```bash
+   git commit -m "feat: describe your feature"
+   ```
+4. Push to your branch:  
+   ```bash
+   git push origin feature/your-feature
+   ```
+5. Open a Pull Request
 
-Commit your changes: git commit -m "feat: add your feature".
+Follow existing code style and add tests for new functionality.
 
-Push to your branch: git push origin feature/your-feature.
+---
 
-Open a Pull Request.
+## License
 
-Please follow the existing code style and add tests for new functionality.
-
-License
-
-This project is licensed under the MIT License.
-
+This project is licensed under the [MIT License](LICENSE).
