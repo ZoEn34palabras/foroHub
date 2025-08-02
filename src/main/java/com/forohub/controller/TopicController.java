@@ -60,5 +60,4 @@ public class TopicController {
         topicService.deleteTopic(id);
         return ResponseEntity.noContent().build();
     }
-
 }

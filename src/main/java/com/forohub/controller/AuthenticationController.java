@@ -37,11 +37,11 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public Map<String,String> login(@RequestBody @Valid AuthRequest req) {
-        // Authenticate
+        // Autenticar
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
         );
-        // Generate token
+        // Generar token
         String jwt = tokenService.generateToken((UserDetails) auth.getPrincipal());
         return Collections.singletonMap("token", jwt);
     }
